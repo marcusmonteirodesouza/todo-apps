@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "todos"
 version = "0.1.0"
-description = "Todos web API"
+description = "To-Dos API"
 authors = ["Marcus Vinicius Monteiro de Souza <marcusmonteirodesouza@gmail.com>"]
 readme = "README.md"
 

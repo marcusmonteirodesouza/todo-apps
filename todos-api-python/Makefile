@@ -23,4 +23,4 @@ down:
 	docker compose down
 
 clean-up-postgres:
-	make down && rm -rf postgres-data && sleep 2 && make up-postgres
+	make down && rm -rf postgres-data && sleep 5 && make up-postgres
