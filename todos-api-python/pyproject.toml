@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "todos"
+version = "0.1.0"
+description = "Todos web API"
+authors = ["Marcus Vinicius Monteiro de Souza <marcusmonteirodesouza@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+sqlalchemy = "^2.0.27"
+flask = {extras = ["async"], version = "^3.0.2"}
+flask-sqlalchemy = "^3.1.1"
+flask-migrate = "^4.0.5"
+psycopg2-binary = "^2.9.9"
+gunicorn = "^21.2.0"
+marshmallow-sqlalchemy = "^1.0.0"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^24.2.0"
+python-dotenv = {extras = ["cli"], version = "^1.0.1"}
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
