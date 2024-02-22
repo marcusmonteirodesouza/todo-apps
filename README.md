@@ -1,3 +1,3 @@
-# To-Do apps
+# ToDo apps
 
-To-Do apps written in multiple programming languages.
+ToDo apps written in multiple programming languages.
