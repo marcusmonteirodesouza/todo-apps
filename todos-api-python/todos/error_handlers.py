@@ -5,14 +5,21 @@ from enum import StrEnum
 from http import HTTPStatus
 
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from werkzeug.exceptions import HTTPException
 
-from .exceptions import AlreadyExistsException, UnauthorizedException, NotFoundException
+from todos.exceptions import (
+    AlreadyExistsException,
+    ForbiddenException,
+    UnauthorizedException,
+    NotFoundException,
+)
 
 
 class _ErrorResponseCode(StrEnum):
     ALREADY_EXISTS = "already_exists"
     BAD_REQUEST = "bad_request"
+    FORBIDDEN = "forbidden"
     GENERAL_ERROR = "general_error"
     NOT_FOUND = "not_found"
     UNAUTHORIZED = "unauthorized"
@@ -25,7 +32,7 @@ class _ErrorResponse:
     message: str
 
 
-def add_error_handlers(app: Flask):
+def add_error_handlers(app: Flask, jwt: JWTManager):
     @app.errorhandler(AlreadyExistsException)
     def handle_value_error(e: AlreadyExistsException):
         app.logger.error(e)
@@ -36,6 +43,18 @@ def add_error_handlers(app: Flask):
                 _ErrorResponse(code=_ErrorResponseCode.ALREADY_EXISTS, message=str(e))
             ),
             HTTPStatus.CONFLICT,
+        )
+
+    @app.errorhandler(ForbiddenException)
+    def handle_value_error(e: ForbiddenException):
+        app.logger.error(e)
+        app.logger.error(traceback.format_exc())
+
+        return (
+            dataclasses.asdict(
+                _ErrorResponse(code=_ErrorResponseCode.FORBIDDEN, message="Forbidden")
+            ),
+            HTTPStatus.FORBIDDEN,
         )
 
     @app.errorhandler(UnauthorizedException)
@@ -111,4 +130,33 @@ def add_error_handlers(app: Flask):
                 )
             ),
             HTTPStatus.INTERNAL_SERVER_ERROR,
+        )
+
+    @jwt.expired_token_loader
+    def expired_token_callback(jwt_header, jwt_payload):
+        return (
+            dataclasses.asdict(
+                _ErrorResponse(
+                    code=_ErrorResponseCode.UNAUTHORIZED, message="Token has expired"
+                )
+            ),
+            HTTPStatus.UNAUTHORIZED,
+        )
+
+    @jwt.invalid_token_loader
+    def invalid_token_callback(reason: str):
+        return (
+            dataclasses.asdict(
+                _ErrorResponse(code=_ErrorResponseCode.UNAUTHORIZED, message=reason)
+            ),
+            HTTPStatus.UNAUTHORIZED,
+        )
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(reason: str):
+        return (
+            dataclasses.asdict(
+                _ErrorResponse(code=_ErrorResponseCode.UNAUTHORIZED, message=reason)
+            ),
+            HTTPStatus.UNAUTHORIZED,
         )

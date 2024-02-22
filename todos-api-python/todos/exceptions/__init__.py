@@ -1,3 +1,4 @@
 from .already_exists_exception import AlreadyExistsException
+from .forbidden_exception import ForbiddenException
 from .not_found_exception import NotFoundException
 from .unauthorized_exception import UnauthorizedException

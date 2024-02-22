@@ -8,8 +8,8 @@ class TodosService:
     def __init__(self) -> None:
         pass
 
-    def create_todo(self) -> Todo:
-        todo = Todo()
+    def create_todo(self, owner_id: str) -> Todo:
+        todo = Todo(owner_id=owner_id)
 
         db.session.add(todo)
 
