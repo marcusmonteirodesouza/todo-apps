@@ -20,13 +20,15 @@ class TodosService:
     def get_todo(self, id: str) -> Optional[Todo]:
         return Todo.query.filter_by(id=id).one_or_none()
 
-    def create_todo_task(self, todo_id: str, title: str) -> TodoTask:
+    def create_todo_task(
+        self, todo_id: str, title: str, description: Optional[str] = None
+    ) -> TodoTask:
         todo = self.get_todo(id=todo_id)
 
         if not todo:
             raise NotFoundException(f"Todo {todo_id} not found")
 
-        todo_task = TodoTask(todo=todo, title=title)
+        todo_task = TodoTask(todo=todo, title=title, description=description)
 
         db.session.add(todo_task)
 

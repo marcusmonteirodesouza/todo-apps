@@ -1,9 +1,14 @@
 from http import HTTPStatus
 from flask import Blueprint, current_app, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError
 
 from todos.exceptions import ForbiddenException, NotFoundException
-from todos.todos.schemas import todo_schema, todo_task_schema
+from todos.todos.schemas import (
+    create_todo_task_request_schema,
+    todo_schema,
+    todo_task_schema,
+)
 
 todos_blueprint = Blueprint("todos", __name__, url_prefix="/todos")
 
@@ -21,6 +26,11 @@ def create_todo():
 @todos_blueprint.post("/<todo_id>/tasks")
 @jwt_required()
 def create_todo_task(todo_id: str):
+    try:
+        create_todo_task_request = create_todo_task_request_schema.load(request.json)
+    except ValidationError as e:
+        raise ValueError(str(e))
+
     todo = current_app.todos_service.get_todo(id=todo_id)
 
     if not todo:
@@ -34,7 +44,9 @@ def create_todo_task(todo_id: str):
         )
 
     todo_task = current_app.todos_service.create_todo_task(
-        todo_id=todo.id, title=request.json["title"]
+        todo_id=todo.id,
+        title=create_todo_task_request["title"],
+        description=create_todo_task_request["description"],
     )
 
     return todo_task_schema.dump(todo_task), HTTPStatus.CREATED
