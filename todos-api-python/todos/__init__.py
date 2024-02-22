@@ -2,10 +2,12 @@ import logging
 import sys
 import flask_migrate
 from flask import Flask
+from flask_jwt_extended import JWTManager
 
 from .config import config
 from .db import db, migrate
 from .error_handlers import add_error_handlers
+from .auth.blueprints import auth_blueprint
 from .todos.services import TodosService
 from .todos.blueprints import todos_blueprint
 
@@ -20,11 +22,15 @@ def create_app():
     db.init_app(app=app)
     migrate.init_app(app=app, db=db)
 
+    jwt = JWTManager(app=app)
+
     app.todos_service = TodosService()
+
+    app.register_blueprint(blueprint=auth_blueprint)
 
     app.register_blueprint(blueprint=todos_blueprint)
 
-    add_error_handlers(app=app)
+    add_error_handlers(app=app, jwt=jwt)
 
     return app
 

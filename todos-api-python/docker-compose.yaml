@@ -12,6 +12,7 @@ services:
         condition: service_healthy
     environment:
       - DEBUG=${DEBUG}
+      - GOOGLE_OAUTH_CLIENT_ID=${GOOGLE_OAUTH_CLIENT_ID}
       - LOG_LEVEL=${LOG_LEVEL}
       - PORT=${PORT}
       - POSTGRES_HOST=postgres
