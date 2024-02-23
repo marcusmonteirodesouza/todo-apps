@@ -14,6 +14,7 @@ class Todo(db.Model):
     )
     owner_id: Mapped[str] = mapped_column(nullable=False)
     title: Mapped[str] = mapped_column(nullable=False)
+    is_completed: Mapped[bool] = mapped_column(nullable=False, default=False)
     tasks: Mapped[Set["TodoTask"]] = relationship(back_populates="todo")
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=now())
     updated_at: Mapped[datetime.datetime] = mapped_column(

@@ -78,6 +78,46 @@ def get_todo(id: str):
     return todo_schema.dump(todo)
 
 
+@todos_blueprint.patch("/<id>/complete")
+@jwt_required()
+def complete_todo(id: str):
+    todo = current_app.todos_service.get_todo(id=id)
+
+    if not todo:
+        raise NotFoundException(f"ToDo {id} not found")
+
+    current_user = get_jwt_identity()
+
+    if current_user != todo.owner_id:
+        raise ForbiddenException(
+            f"User {current_user} is not the owner of ToDo {todo.id}"
+        )
+
+    updated_todo = current_app.todos_service.update_todo(id=todo.id, is_completed=True)
+
+    return todo_schema.dump(updated_todo)
+
+
+@todos_blueprint.patch("/<id>/uncomplete")
+@jwt_required()
+def uncomplete_todo(id: str):
+    todo = current_app.todos_service.get_todo(id=id)
+
+    if not todo:
+        raise NotFoundException(f"ToDo {id} not found")
+
+    current_user = get_jwt_identity()
+
+    if current_user != todo.owner_id:
+        raise ForbiddenException(
+            f"User {current_user} is not the owner of ToDo {todo.id}"
+        )
+
+    updated_todo = current_app.todos_service.update_todo(id=todo.id, is_completed=False)
+
+    return todo_schema.dump(updated_todo)
+
+
 @todos_blueprint.patch("/<todo_id>/tasks/<todo_task_id>/complete")
 @jwt_required()
 def complete_todo_task(todo_id: str, todo_task_id: str):
@@ -103,6 +143,36 @@ def complete_todo_task(todo_id: str, todo_task_id: str):
 
     updated_todo_task = current_app.todos_service.update_todo_task(
         id=todo_task.id, is_completed=True
+    )
+
+    return todo_task_schema.dump(updated_todo_task)
+
+
+@todos_blueprint.patch("/<todo_id>/tasks/<todo_task_id>/uncomplete")
+@jwt_required()
+def uncomplete_todo_task(todo_id: str, todo_task_id: str):
+    todo = current_app.todos_service.get_todo(id=todo_id)
+
+    if not todo:
+        raise NotFoundException(f"ToDo {todo_id} not found")
+
+    current_user = get_jwt_identity()
+
+    if current_user != todo.owner_id:
+        raise ForbiddenException(
+            f"User {current_user} is not the owner of ToDo {todo.id}"
+        )
+
+    todo_task = current_app.todos_service.get_todo_task(id=todo_task_id)
+
+    if not todo_task:
+        raise NotFoundException(f"ToDo task {todo_task_id} not found")
+
+    if todo_task.todo_id != todo.id:
+        raise ValueError("Task {todo_task.id} does not belong to ToDo {todo.id}")
+
+    updated_todo_task = current_app.todos_service.update_todo_task(
+        id=todo_task.id, is_completed=False
     )
 
     return todo_task_schema.dump(updated_todo_task)

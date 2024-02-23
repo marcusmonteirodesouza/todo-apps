@@ -20,6 +20,19 @@ class TodosService:
     def get_todo(self, id: str) -> Optional[Todo]:
         return Todo.query.filter_by(id=id).one_or_none()
 
+    def update_todo(self, id: str, is_completed: Optional[bool]) -> TodoTask:
+        todo = Todo.query.filter_by(id=id).one_or_none()
+
+        if not todo:
+            raise NotFoundException("ToDo {id} not found")
+
+        if is_completed is not None:
+            todo.is_completed = is_completed
+
+        db.session.commit()
+
+        return todo
+
     def create_todo_task(
         self, todo_id: str, title: str, description: Optional[str] = None
     ) -> TodoTask:
@@ -45,7 +58,7 @@ class TodosService:
         if not todo_task:
             raise NotFoundException("ToDo task {id} not found")
 
-        if is_completed:
+        if is_completed is not None:
             todo_task.is_completed = is_completed
 
         db.session.commit()
