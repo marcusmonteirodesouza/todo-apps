@@ -13,6 +13,7 @@ class Todo(db.Model):
         primary_key=True, server_default=text("gen_random_uuid()")
     )
     owner_id: Mapped[str] = mapped_column(nullable=False)
+    title: Mapped[str] = mapped_column(nullable=False)
     tasks: Mapped[Set["TodoTask"]] = relationship(back_populates="todo")
     created_at: Mapped[datetime.datetime] = mapped_column(server_default=now())
     updated_at: Mapped[datetime.datetime] = mapped_column(
